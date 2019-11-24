@@ -1,0 +1,96 @@
+
+Sub Stocks()
+    On Error Resume Next
+    Dim b_tot As Long
+    b_tot = 0
+    Dim isTickerinList As Boolean
+    Dim start_price As Double
+    Dim end_price As Double
+    Dim Total_volume As Double
+    Dim add_volume As Double
+    
+    
+    Dim k As Long
+    k = 2
+              
+    'Loop to determine the total rows in the sheet
+    Dim total_rows As Double
+    x = 1
+    Do Until IsEmpty(Cells(x, 1))
+        total_rows = total_rows + 1
+        x = x + 1
+        Loop
+    
+
+    ' Create labels for columns in the new chart
+     Cells(1, 9).Value = "Ticker"
+     Cells(1, 10).Value = "Total Stock Volume"
+     Cells(1, 11).Value = "Yearly Change"
+     Cells(1, 12).Value = "Percent Change"
+    ' Creates labels for the rows columns in the second new chart
+     Cells(1, 16).Value = "Ticker"
+     Cells(1, 17).Value = "Value"
+     Cells(2, 15).Value = "Greatest % Increase"
+     Cells(3, 15).Value = "Greatest % Decrease"
+     Cells(4, 15).Value = "Greatest Total Volume"
+
+   
+        For j = 2 To Cells.SpecialCells(xlCellTypeLastCell).Row
+            If Cells(j, 1).Value <> Cells(j + 1, 1).Value Then
+                close_price_end = Cells(j, 6).Value
+                 Cells(k, 11).Value = close_price_end - open_price_beginning
+                 Cells(k, 12).Value = (close_price_end - open_price_beginning) / open_price_beginning
+                open_price_beginning = 0
+                close_price_end = 0
+                 Cells(k, 9).Value = Cells(j, 1).Value
+                total_vol = total_vol + Cells(j, 7).Value
+                 Cells(k, 10).Value = total_vol
+                k = k + 1
+                total_vol = 0
+            ElseIf Cells(j - 1, 1).Value <> Cells(j, 1).Value Then
+                open_price_beginning = Cells(j, 3).Value
+                total_vol = total_vol + Cells(j, 7).Value
+            Else
+                total_vol = total_vol + Cells(j, 7).Value
+            End If
+        Next j
+    
+    'Find maximum % increase, % decrease, and total volume
+    Cells(2, 17).Value = WorksheetFunction.Max(Range("L2:L" & Range("K1").CurrentRegion.Rows.Count))
+    Cells(3, 17).Value = WorksheetFunction.Min(Range("L2:L" & Range("K1").CurrentRegion.Rows.Count))
+    Cells(4, 17).Value = WorksheetFunction.Max(Range("J2:J" & Range("K1").CurrentRegion.Rows.Count))
+    Cells(2, 17).Style = "Percent"
+    Cells(3, 17).Style = "Percent"
+    
+    'Find Tickers for mins & maxes
+    For m = 2 To Range("K1").CurrentRegion.Rows.Count
+        If Cells(m, 12).Value = Cells(2, 17).Value Then
+            Cells(2, 16).Value = Cells(m, 9).Value
+        ElseIf Cells(m, 12).Value = Cells(3, 17).Value Then
+            Cells(3, 16).Value = Cells(m, 9).Value
+        ElseIf Cells(m, 10).Value = Cells(4, 17).Value Then
+            Cells(4, 16).Value = Cells(m, 9).Value
+        End If
+    Next m
+    
+     'Formatting for positive changes green and negative changes red
+    For l = 2 To Range("K1").CurrentRegion.Rows.Count
+        Cells(l, 12).Style = "Percent"
+        If Cells(l, 11).Value > 0 Then
+            With Cells(l, 11).Interior
+                .ColorIndex = 4
+                .TintAndShade = 0.6
+            End With
+        Else
+            With Cells(l, 11).Interior
+                .ColorIndex = 3
+                .TintAndShade = 0.6
+            End With
+        End If
+    Next l
+End Sub
+
+
+
+
+
